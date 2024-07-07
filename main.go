@@ -13,5 +13,6 @@ func main() {
 	routes.POST("/mysql/create-database", mysqlCreateDatabase)
 	routes.POST("/mysql/reset-credentials", mysqlResetCredentials)
 	routes.POST("/mysql/rename-database", mysqlRenameDatabase)
+	routes.POST("/mysql/delete-database", mysqlDeleteDatabase)
 	routes.Run(":8080")
 }
