@@ -19,15 +19,14 @@ jobs:
         go-version-file: 'go.mod' 
         
     - name: Build the Go program
-      run: go build -o go-db-manager .
-    
-    - name: Copy to server using SSH
-      uses: appleboy/ssh-action@master
+      run: GOOS=linux go build -o build/GoDbManager -v
+      
+    - name: Copy Build Golang App
+      uses: appleboy/scp-action@master
       with:
         host: ${{ secrets.SERVER_HOST }}
         username: ${{ secrets.SERVER_USERNAME }}
         key: ${{ secrets.SSH_PRIVATE_KEY }}
-        port: ${{ secrets.SERVER_SSH_PORT }}  # adjust if your SSH port is different
-        script: |
-          ls
-          scp go ${{ secrets.SERVER_USERNAME }}@${{ secrets.SERVER_HOST }}:/apps/go-db-manager
+        port: ${{ secrets.SERVER_SSH_PORT }} 
+        source: build/
+        target: /apps
