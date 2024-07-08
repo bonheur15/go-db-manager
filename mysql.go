@@ -66,6 +66,11 @@ func mysqlCreateDatabase(c *gin.Context, mysqlDbHost string, mysqlDbUser string,
 		ErrorResponse(c, err, startTime, "mysql-grant-privileges-user")
 		return
 	}
+	_, err = db.Exec("FLUSH PRIVILEGES")
+	if err != nil {
+		ErrorResponse(c, err, startTime, "mysql-flush-privileges-user")
+		return
+	}
 
 	SuccessResponse(c, map[string]string{
 		"username":      username,
