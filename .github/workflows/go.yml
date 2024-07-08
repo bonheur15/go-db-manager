@@ -19,7 +19,7 @@ jobs:
         go-version-file: 'go.mod' 
         
     - name: Build the Go program
-      run: GOOS=linux go build -o build/GoDbManager -v
+      run: CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o build/GoDbManager -v
       
     - name: Copy Build Golang App
       uses: appleboy/scp-action@master
