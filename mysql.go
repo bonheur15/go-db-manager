@@ -11,12 +11,8 @@ import (
 	_ "github.com/go-sql-driver/mysql"
 )
 
-const (
-	mysqlDbUser     = "root"
-	mysqlDbPassword = ""
-	mysqlDbHost     = "localhost"
-	mysqlDbPort     = "3306"
-)
+// Get an environment variable's value with a default backup value.
+// fmt.Println(value)
 
 func randomString(length int) (string, error) {
 	const charset = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
@@ -31,7 +27,7 @@ func randomString(length int) (string, error) {
 	return string(result), nil
 }
 
-func mysqlCreateDatabase(c *gin.Context) {
+func mysqlCreateDatabase(c *gin.Context, mysqlDbHost string, mysqlDbUser string, mysqlDbPassword string, mysqlDbPort string) {
 	startTime := time.Now().UnixMilli()
 	type RequesBody struct {
 		DatabaseName string `json:"database_name"`
@@ -82,7 +78,7 @@ func mysqlCreateDatabase(c *gin.Context) {
 
 }
 
-func mysqlResetCredentials(c *gin.Context) {
+func mysqlResetCredentials(c *gin.Context, mysqlDbHost string, mysqlDbUser string, mysqlDbPassword string, mysqlDbPort string) {
 	startTime := time.Now().UnixMilli()
 	type RequesBody struct {
 		DatabaseName string `json:"database_name"`
@@ -134,7 +130,7 @@ func mysqlResetCredentials(c *gin.Context) {
 	}, startTime, "mysql-reset-credentials", "Database Credentials Has been reset")
 
 }
-func mysqlRenameDatabase(c *gin.Context) {
+func mysqlRenameDatabase(c *gin.Context, mysqlDbHost string, mysqlDbUser string, mysqlDbPassword string, mysqlDbPort string) {
 	startTime := time.Now().UnixMilli()
 
 	var requestBody struct {
@@ -249,7 +245,7 @@ func mysqlRenameDatabase(c *gin.Context) {
 		"new_database_name": requestBody.NewDatabaseName,
 	}, startTime, "mysql-rename-database", "Database Renamed")
 }
-func mysqlDeleteDatabase(c *gin.Context) {
+func mysqlDeleteDatabase(c *gin.Context, mysqlDbHost string, mysqlDbUser string, mysqlDbPassword string, mysqlDbPort string) {
 	startTime := time.Now().UnixMilli()
 	type RequesBody struct {
 		DatabaseName string `json:"database_name"`
