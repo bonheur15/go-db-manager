@@ -11,9 +11,6 @@ import (
 	_ "github.com/go-sql-driver/mysql"
 )
 
-// Get an environment variable's value with a default backup value.
-// fmt.Println(value)
-
 func randomString(length int) (string, error) {
 	const charset = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
 	result := make([]byte, length)

@@ -30,6 +30,7 @@ func main() {
 	mysqlUser := getEnv("mysql_user", "root")
 	mysqlPassword := getEnv("mysql_password", "")
 	mysqlPort := getEnv("mysql_port", "3306")
+	fmt.Printf("MySQL Host: %s\n", mysqlHost)
 
 	routes := gin.Default()
 	routes.GET("/server-info", getServerInfoHandler)
