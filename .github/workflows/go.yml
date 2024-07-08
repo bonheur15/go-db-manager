@@ -19,7 +19,7 @@ jobs:
         go-version: '1.22.5'  
         
     - name: Build the Go program
-      run: go build .
+      run: go build . -o go-db-manager
     
     - name: Copy to server using SSH
       uses: appleboy/ssh-action@master
@@ -29,4 +29,4 @@ jobs:
         key: ${{ secrets.SSH_PRIVATE_KEY }}
         port: ${{ secrets.SERVER_SSH_PORT }}  # adjust if your SSH port is different
         script: |
-          scp ./go-db-manager ${{ secrets.SERVER_USERNAME }}@${{ secrets.SERVER_HOST }}:/app/go-db-manager
+          scp ./go-db-manager ${{ secrets.SERVER_USERNAME }}@${{ secrets.SERVER_HOST }}:/apps/go-db-manager
