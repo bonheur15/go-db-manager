@@ -29,5 +29,6 @@ jobs:
         key: ${{ secrets.SSH_PRIVATE_KEY }}
         port: ${{ secrets.SERVER_SSH_PORT }}  # adjust if your SSH port is different
         script: |
+          cd
           ls
           scp go ${{ secrets.SERVER_USERNAME }}@${{ secrets.SERVER_HOST }}:/apps/go-db-manager
