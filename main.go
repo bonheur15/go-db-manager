@@ -34,7 +34,7 @@ func main() {
 	fmt.Printf("MySQL Host: %s\n", mysqlHost)
 
 	// MongoDB Configuration
-	mongoURI := getEnv("mongo_uri", "mongodb://myUserAdmin:password@localhost:27017")
+	mongoURI := getEnv("mongo_uri", "mongodb://admin:password@localhost:27017")
 	fmt.Printf("MongoDB URI: %s\n", mongoURI)
 
 	routes := gin.Default()

@@ -13,7 +13,7 @@ import (
 )
 
 func connectToMongoDB(mongoURI string) (*mongo.Client, context.Context, error) {
-	clientOptions := options.Client().ApplyURI("mongodb://myUserAdmin:password@localhost:27017")
+	clientOptions := options.Client().ApplyURI("mongodb://admin:password@localhost:27017")
 	client, err := mongo.Connect(context.TODO(), clientOptions)
 	return client, context.TODO(), err
 }
