@@ -37,6 +37,13 @@ func main() {
 	mongoURI := getEnv("mongo_uri", "mongodb://admin:password@localhost:27017")
 	fmt.Printf("MongoDB URI: %s\n", mongoURI)
 
+	// PostgreSQL Configuration
+	postgresHost := getEnv("postgres_host", "localhost")
+	postgresUser := getEnv("postgres_user", "postgres")
+	postgresPassword := getEnv("postgres_password", "password")
+	postgresPort := getEnv("postgres_port", "5432")
+	fmt.Printf("PostgreSQL Host: %s\n", postgresHost)
+
 	routes := gin.Default()
 	routes.GET("/server-info", getServerInfoHandler)
 
@@ -54,6 +61,13 @@ func main() {
 	routes.POST("/mongo/delete-database", createMongoHandler(mongoDeleteDatabase, mongoURI))
 	routes.POST("/mongo/view-database-stats", createMongoHandler(mongoViewDatabaseStats, mongoURI))
 
+	// PostgreSQL Endpoints
+	routes.POST("/postgres/create-database", createPostgresHandler(postgresCreateDatabase, postgresHost, postgresUser, postgresPassword, postgresPort))
+	routes.POST("/postgres/reset-credentials", createPostgresHandler(postgresResetCredentials, postgresHost, postgresUser, postgresPassword, postgresPort))
+	routes.POST("/postgres/rename-database", createPostgresHandler(postgresRenameDatabase, postgresHost, postgresUser, postgresPassword, postgresPort))
+	routes.POST("/postgres/delete-database", createPostgresHandler(postgresDeleteDatabase, postgresHost, postgresUser, postgresPassword, postgresPort))
+	routes.POST("/postgres/view-database-stats", createPostgresHandler(postgresViewDatabaseStats, postgresHost, postgresUser, postgresPassword, postgresPort))
+
 	routes.Run(":8080")
 }
 
@@ -66,5 +80,11 @@ func createMySQLHandler(handlerFunc func(*gin.Context, string, string, string, s
 func createMongoHandler(handlerFunc func(*gin.Context, string), uri string) gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		handlerFunc(ctx, uri)
+	}
+}
+
+func createPostgresHandler(handlerFunc func(*gin.Context, string, string, string, string), host, user, password, port string) gin.HandlerFunc {
+	return func(ctx *gin.Context) {
+		handlerFunc(ctx, host, user, password, port)
 	}
 }
