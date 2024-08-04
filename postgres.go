@@ -308,7 +308,7 @@ func postgresGetTotalQueries(c *gin.Context, postgresDbHost, postgresDbUser, pos
 	JOIN
 		pg_roles ON pg_stat_statements.userid = pg_roles.oid
 	WHERE
-		 pg_roles.rolname != 'postgre'
+		 pg_roles.rolname != 'postgres'
 	GROUP BY
 		 pg_roles.rolname,
 		 pg_database.datname
