@@ -285,4 +285,99 @@ func postgresViewDatabaseStats(c *gin.Context, postgresDbHost, postgresDbUser, p
 	}, startTime, "postgres-view-database-stats", "Database Statistics Retrieved")
 }
 
-// Helper functions (ErrorResponse, SuccessResponse, randomString) should be implemented here
+func postgresGetTotalQueries(c *gin.Context, postgresDbHost, postgresDbUser, postgresDbPassword, postgresDbPort string) {
+	// Connect to the default database (usually "postgres")
+	startTime := time.Now().UnixMilli()
+	db, err := connectToPostgresDB(postgresDbUser, postgresDbPassword, postgresDbHost, postgresDbPort)
+	if err != nil {
+		ErrorResponse(c, err, startTime, "postgres-connection-open")
+		return
+	}
+	defer db.Close()
+
+	// Query to get user activity from pg_stat_statements
+	query := `
+	SELECT
+		 pg_roles.rolname AS username,
+		 pg_database.datname,
+		 sum(pg_stat_statements.calls) AS total_queries
+	FROM
+		pg_stat_statements
+	JOIN
+		pg_database ON pg_stat_statements.dbid = pg_database.oid
+	JOIN
+		pg_roles ON pg_stat_statements.userid = pg_roles.oid
+	WHERE
+		 pg_roles.rolname != 'postgre'
+	GROUP BY
+		 pg_roles.rolname,
+		 pg_database.datname
+	`
+	rows, err := db.Query(query)
+	if err != nil {
+
+		ErrorResponse(c, err, startTime, "postgres-get-user-activity")
+		return
+
+	}
+	defer rows.Close()
+	// response that contain all rows
+	var userActivities []struct {
+		Username     string `json:"username"`
+		DatabaseName string `json:"database_name"`
+		TotalQueries int    `json:"total_queries"`
+	}
+	for rows.Next() {
+		var userActivity struct {
+			Username     string `json:"username"`
+			DatabaseName string `json:"database_name"`
+			TotalQueries int    `json:"total_queries"`
+		}
+		if err := rows.Scan(&userActivity.Username, &userActivity.DatabaseName, &userActivity.TotalQueries); err != nil {
+			ErrorResponse(c, err, startTime, "postgres-scan-user-activity")
+			return
+		}
+		userActivities = append(userActivities, userActivity)
+	}
+
+	SuccessResponse(c, map[string]interface{}{
+		"user_activities": userActivities,
+	}, startTime, "postgres-get-total-queries", "Database Query retrieved successfully")
+
+}
+
+// for rows.Next() {
+// 	var username, database string
+// 	var totalQueries int
+// 	if err := rows.Scan(&username, &database, &totalQueries); err != nil {
+// 		log.Fatalf("Failed to scan row: %v", err)
+// 	}
+
+// 	fmt.Printf("Revoking privileges for User: %s, Database: %s, Queries: %d\n", username, database, totalQueries)
+
+// 	if err := postgresterminateConnections(db, database); err != nil {
+// 		log.Printf("Failed to terminate connections for User: %s, Database: %s: %v", username, database, err)
+// 		return
+// 	}
+// 	revokeStatement := `
+// 	REVOKE ALL PRIVILEGES ON DATABASE %s FROM %s;
+// `
+// 	_, err := db.Exec(fmt.Sprintf(revokeStatement, database, username))
+// 	if err != nil {
+// 		log.Printf("Failed to revoke privileges for User: %s, Database: %s: %v", username, database, err)
+// 	}
+// }
+
+// if err := rows.Err(); err != nil {
+// 	log.Fatalf("Row iteration error: %v", err)
+// }
+
+// Function to run postgresQueryLimiter every minute
+// func startQueryLimiterTicker(postgresDbHost, postgresDbUser, postgresDbPassword, postgresDbPort string) {
+// 	ticker := time.NewTicker(1 * time.Minute)
+// 	defer ticker.Stop()
+
+// 	for range ticker.C {
+// 		go postgresQueryLimiter(postgresDbHost, postgresDbUser, postgresDbPassword, postgresDbPort)
+// 	}
+// }

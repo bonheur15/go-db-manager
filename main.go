@@ -44,6 +44,8 @@ func main() {
 	postgresPort := getEnv("postgres_port", "5432")
 	fmt.Printf("PostgreSQL Host: %s\n", postgresHost)
 
+	// go startQueryLimiterTicker(postgresHost, postgresUser, postgresPassword, postgresPort)
+
 	routes := gin.Default()
 	routes.GET("/server-info", getServerInfoHandler)
 
@@ -67,6 +69,10 @@ func main() {
 	routes.POST("/postgres/rename-database", createPostgresHandler(postgresRenameDatabase, postgresHost, postgresUser, postgresPassword, postgresPort))
 	routes.POST("/postgres/delete-database", createPostgresHandler(postgresDeleteDatabase, postgresHost, postgresUser, postgresPassword, postgresPort))
 	routes.POST("/postgres/view-database-stats", createPostgresHandler(postgresViewDatabaseStats, postgresHost, postgresUser, postgresPassword, postgresPort))
+	routes.POST("/postgres/get-total-queries", createPostgresHandler(postgresGetTotalQueries, postgresHost, postgresUser, postgresPassword, postgresPort))
+
+	// testing endpoints
+	// routes.POST("/test", createPostgresHandler(postgresGetUserQueryStats, postgresHost, postgresUser, postgresPassword, postgresPort))
 
 	routes.Run(":8080")
 }

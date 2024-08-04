@@ -2,6 +2,7 @@ package main
 
 import (
 	"crypto/rand"
+	"fmt"
 	"math/big"
 	"time"
 
@@ -31,17 +32,28 @@ func ErrorResponse(c *gin.Context, err error, startTime int64, action string) {
 }
 
 const (
-	charset = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
+	lowerCharset = "abcdefghijklmnopqrstuvwxyz"
+	mixedCharset = "abcdefghijklmnopqrstuvwxyz0123456789"
 )
 
 func randomString(length int) (string, error) {
+	if length <= 0 {
+		return "", fmt.Errorf("length must be greater than 0")
+	}
+
 	result := make([]byte, length)
-	for i := range result {
-		num, err := rand.Int(rand.Reader, big.NewInt(int64(len(charset))))
+	num, err := rand.Int(rand.Reader, big.NewInt(int64(len(lowerCharset))))
+	if err != nil {
+		return "", err
+	}
+	result[0] = lowerCharset[num.Int64()]
+	for i := 1; i < length; i++ {
+		num, err := rand.Int(rand.Reader, big.NewInt(int64(len(mixedCharset))))
 		if err != nil {
 			return "", err
 		}
-		result[i] = charset[num.Int64()]
+		result[i] = mixedCharset[num.Int64()]
 	}
+
 	return string(result), nil
 }
