@@ -320,6 +320,7 @@ func postgresGetTotalQueries(c *gin.Context, postgresDbHost, postgresDbUser, pos
 		return
 
 	}
+
 	defer rows.Close()
 	// response that contain all rows
 	var userActivities []struct {
