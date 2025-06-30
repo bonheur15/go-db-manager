@@ -3,8 +3,8 @@ package handlers
 import (
 	"time"
 
-	"github.com/gin-gonic/gin"
 	"github.com/bonheur15/go-db-manager/utils"
+	"github.com/gin-gonic/gin"
 )
 
 func GetServerInfoHandler(c *gin.Context) {

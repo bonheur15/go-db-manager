@@ -4,9 +4,9 @@ This project is a Go-based API server for managing various database systems. It 
 
 ## Supported Databases
 
-*   MySQL
-*   MongoDB
-*   PostgreSQL
+- MySQL
+- MongoDB
+- PostgreSQL
 
 ## API Endpoints
 
@@ -14,35 +14,34 @@ All endpoints are of the POST method.
 
 ### Common Endpoints
 
-*   `/server-info` (GET): Retrieves information about the server environment.
+- `/server-info` (GET): Retrieves information about the server environment.
 
 ### MySQL Endpoints
 
-*   `/mysql/create-database`: Creates a new MySQL database.
-*   `/mysql/reset-credentials`: Resets credentials for a MySQL database.
-*   `/mysql/rename-database`: Renames an existing MySQL database.
-*   `/mysql/delete-database`: Deletes a MySQL database.
-*   `/mysql/view-database-stats`: Views statistics for a MySQL database.
+- `/mysql/create-database`: Creates a new MySQL database.
+- `/mysql/reset-credentials`: Resets credentials for a MySQL database.
+- `/mysql/rename-database`: Renames an existing MySQL database.
+- `/mysql/delete-database`: Deletes a MySQL database.
+- `/mysql/view-database-stats`: Views statistics for a MySQL database.
 
 ### MongoDB Endpoints
 
-*   `/mongo/create-database`: Creates a new MongoDB database.
-*   `/mongo/reset-credentials`: Resets credentials for a MongoDB user/database.
-*   `/mongo/rename-database`: Renames an existing MongoDB database. (Note: MongoDB rename operations might have specific behaviors, like being limited to admin database or specific commands).
-*   `/mongo/delete-database`: Deletes a MongoDB database.
-*   `/mongo/view-database-stats`: Views statistics for a MongoDB database.
+- `/mongo/create-database`: Creates a new MongoDB database.
+- `/mongo/reset-credentials`: Resets credentials for a MongoDB user/database.
+- `/mongo/rename-database`: Renames an existing MongoDB database. (Note: MongoDB rename operations might have specific behaviors, like being limited to admin database or specific commands).
+- `/mongo/delete-database`: Deletes a MongoDB database.
+- `/mongo/view-database-stats`: Views statistics for a MongoDB database.
 
 ### PostgreSQL Endpoints
 
-*   `/postgres/create-database`: Creates a new PostgreSQL database.
-*   `/postgres/reset-credentials`: Resets credentials for a PostgreSQL role/database.
-*   `/postgres/rename-database`: Renames an existing PostgreSQL database.
-*   `/postgres/delete-database`: Deletes a PostgreSQL database.
-*   `/postgres/view-database-stats`: Views statistics for a PostgreSQL database.
-*   `/postgres/get-total-queries`: Retrieves the total number of queries executed against a PostgreSQL database (Note: this might require specific pg_stat_statements extension or similar).
+- `/postgres/create-database`: Creates a new PostgreSQL database.
+- `/postgres/reset-credentials`: Resets credentials for a PostgreSQL role/database.
+- `/postgres/rename-database`: Renames an existing PostgreSQL database.
+- `/postgres/delete-database`: Deletes a PostgreSQL database.
+- `/postgres/view-database-stats`: Views statistics for a PostgreSQL database.
+- `/postgres/get-total-queries`: Retrieves the total number of queries executed against a PostgreSQL database (Note: this might require specific pg_stat_statements extension or similar).
 
-
-*Further investigation is needed to document the specific request body parameters for each endpoint.*
+_Further investigation is needed to document the specific request body parameters for each endpoint._
 
 ## Configuration
 
@@ -50,18 +49,18 @@ Database connection details are configured via environment variables, typically 
 
 **Required Environment Variables:**
 
-*   **MySQL:**
-    *   `mysql_host` (default: `localhost`)
-    *   `mysql_user` (default: `root`)
-    *   `mysql_password` (default: ``)
-    *   `mysql_port` (default: `3306`)
-*   **MongoDB:**
-    *   `mongo_uri` (default: `mongodb://admin:password@localhost:27017`)
-*   **PostgreSQL:**
-    *   `postgres_host` (default: `localhost`)
-    *   `postgres_user` (default: `postgres`)
-    *   `postgres_password` (default: `password`)
-    *   `postgres_port` (default: `5432`)
+- **MySQL:**
+  - `mysql_host` (default: `localhost`)
+  - `mysql_user` (default: `root`)
+  - `mysql_password` (default: ``)
+  - `mysql_port` (default: `3306`)
+- **MongoDB:**
+  - `mongo_uri` (default: `mongodb://admin:password@localhost:27017`)
+- **PostgreSQL:**
+  - `postgres_host` (default: `localhost`)
+  - `postgres_user` (default: `postgres`)
+  - `postgres_password` (default: `password`)
+  - `postgres_port` (default: `5432`)
 
 Create a `.env` file in the root of the project and add the necessary variables:
 
@@ -100,8 +99,9 @@ postgres_port=your_postgres_port
 ## Contributing
 
 Contributions are welcome! Please feel free to:
-*   Report a bug
-*   Suggest a feature
-*   Submit a pull request
+
+- Report a bug
+- Suggest a feature
+- Submit a pull request
 
 Please make sure to update tests as appropriate.

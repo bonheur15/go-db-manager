@@ -11,7 +11,6 @@ import (
 	"github.com/lib/pq"
 )
 
-
 func init() {
 	validate = validator.New()
 }
@@ -35,8 +34,8 @@ func PostgresCreateDatabase(c *gin.Context, postgresDbHost, postgresDbUser, post
 		utils.ErrorResponse(c, err, startTime, "postgres-validation")
 		return
 	}
-	
-	db, err := ConnectToPostgresDB(postgresDbUser, postgresDbPassword, postgresDbHost, postgresDbPort,sslMode)
+
+	db, err := ConnectToPostgresDB(postgresDbUser, postgresDbPassword, postgresDbHost, postgresDbPort, sslMode)
 	if err != nil {
 		utils.ErrorResponse(c, err, startTime, "postgres-connection-open")
 		return
@@ -78,7 +77,7 @@ func PostgresCreateDatabase(c *gin.Context, postgresDbHost, postgresDbUser, post
 	}, startTime, "postgres-create-database", "Database Created")
 }
 
-func PostgresResetCredentials(c *gin.Context, postgresDbHost, postgresDbUser, postgresDbPassword, postgresDbPort,sslMode string) {
+func PostgresResetCredentials(c *gin.Context, postgresDbHost, postgresDbUser, postgresDbPassword, postgresDbPort, sslMode string) {
 	startTime := time.Now().UnixMilli()
 	var requestBody struct {
 		DatabaseName string `json:"database_name" validate:"required,alphanum"`
@@ -93,7 +92,7 @@ func PostgresResetCredentials(c *gin.Context, postgresDbHost, postgresDbUser, po
 		return
 	}
 
-	db, err := ConnectToPostgresDB(postgresDbUser, postgresDbPassword, postgresDbHost, postgresDbPort,sslMode)
+	db, err := ConnectToPostgresDB(postgresDbUser, postgresDbPassword, postgresDbHost, postgresDbPort, sslMode)
 	if err != nil {
 		utils.ErrorResponse(c, err, startTime, "postgres-connection-open")
 		return
@@ -146,7 +145,7 @@ func PostgresResetCredentials(c *gin.Context, postgresDbHost, postgresDbUser, po
 	}, startTime, "postgres-reset-credentials", "Database Credentials Reset")
 }
 
-func PostgresRenameDatabase(c *gin.Context, postgresDbHost, postgresDbUser, postgresDbPassword, postgresDbPort,sslMode string) {
+func PostgresRenameDatabase(c *gin.Context, postgresDbHost, postgresDbUser, postgresDbPassword, postgresDbPort, sslMode string) {
 	startTime := time.Now().UnixMilli()
 	var requestBody struct {
 		OldDatabaseName string `json:"old_database_name" validate:"required,alphanum"`
@@ -162,7 +161,7 @@ func PostgresRenameDatabase(c *gin.Context, postgresDbHost, postgresDbUser, post
 		return
 	}
 
-	db, err := ConnectToPostgresDB(postgresDbUser, postgresDbPassword, postgresDbHost, postgresDbPort,sslMode)
+	db, err := ConnectToPostgresDB(postgresDbUser, postgresDbPassword, postgresDbHost, postgresDbPort, sslMode)
 	if err != nil {
 		utils.ErrorResponse(c, err, startTime, "postgres-connection-open")
 		return
@@ -210,7 +209,7 @@ func PostgresTerminateConnections(db *sql.DB, dbName string) error {
 }
 
 // Handle deleting a PostgreSQL database and associated users
-func PostgresDeleteDatabase(c *gin.Context, postgresDbHost, postgresDbUser, postgresDbPassword, postgresDbPort,sslMode string) {
+func PostgresDeleteDatabase(c *gin.Context, postgresDbHost, postgresDbUser, postgresDbPassword, postgresDbPort, sslMode string) {
 	startTime := time.Now().UnixMilli()
 	var requestBody struct {
 		DatabaseName string `json:"database_name" validate:"required,alphanum"`
@@ -226,7 +225,7 @@ func PostgresDeleteDatabase(c *gin.Context, postgresDbHost, postgresDbUser, post
 	}
 
 	// Connect to the maintenance database (e.g., postgres)
-	adminDb, err := ConnectToPostgresDB(postgresDbUser, postgresDbPassword, postgresDbHost, postgresDbPort,sslMode)
+	adminDb, err := ConnectToPostgresDB(postgresDbUser, postgresDbPassword, postgresDbHost, postgresDbPort, sslMode)
 	if err != nil {
 		utils.ErrorResponse(c, err, startTime, "postgres-connection-open")
 		return
@@ -285,7 +284,7 @@ func PostgresDeleteDatabase(c *gin.Context, postgresDbHost, postgresDbUser, post
 	}, startTime, "postgres-delete-database", "Database Deleted")
 }
 
-func PostgresViewDatabaseStats(c *gin.Context, postgresDbHost, postgresDbUser, postgresDbPassword, postgresDbPort,sslMode string) {
+func PostgresViewDatabaseStats(c *gin.Context, postgresDbHost, postgresDbUser, postgresDbPassword, postgresDbPort, sslMode string) {
 	startTime := time.Now().UnixMilli()
 	var requestBody struct {
 		DatabaseName string `json:"database_name" validate:"required,alphanum"`
@@ -300,7 +299,7 @@ func PostgresViewDatabaseStats(c *gin.Context, postgresDbHost, postgresDbUser, p
 		return
 	}
 
-	db, err := ConnectToPostgresDB(postgresDbUser, postgresDbPassword, postgresDbHost, postgresDbPort,sslMode)
+	db, err := ConnectToPostgresDB(postgresDbUser, postgresDbPassword, postgresDbHost, postgresDbPort, sslMode)
 	if err != nil {
 		utils.ErrorResponse(c, err, startTime, "postgres-connection-open")
 		return
@@ -344,7 +343,7 @@ func PostgresViewDatabaseStats(c *gin.Context, postgresDbHost, postgresDbUser, p
 func PostgresGetTotalQueries(c *gin.Context, postgresDbHost, postgresDbUser, postgresDbPassword, postgresDbPort, sslMode string) {
 	// Connect to the default database (usually "postgres")
 	startTime := time.Now().UnixMilli()
-	db, err := ConnectToPostgresDB(postgresDbUser, postgresDbPassword, postgresDbHost, postgresDbPort,sslMode)
+	db, err := ConnectToPostgresDB(postgresDbUser, postgresDbPassword, postgresDbHost, postgresDbPort, sslMode)
 	if err != nil {
 		utils.ErrorResponse(c, err, startTime, "postgres-connection-open")
 		return

@@ -5,38 +5,38 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func CreatePostgresHandler(host, user, password, port,sslMode string) gin.HandlerFunc {
+func CreatePostgresHandler(host, user, password, port, sslMode string) gin.HandlerFunc {
 	return func(c *gin.Context) {
-		database.PostgresCreateDatabase(c, host, user, password, port,sslMode)
+		database.PostgresCreateDatabase(c, host, user, password, port, sslMode)
 	}
 }
 
-func PostgresResetCredentialsHandler(host, user, password, port,sslMode string) gin.HandlerFunc {
+func PostgresResetCredentialsHandler(host, user, password, port, sslMode string) gin.HandlerFunc {
 	return func(c *gin.Context) {
-		database.PostgresResetCredentials(c, host, user, password, port,sslMode)
+		database.PostgresResetCredentials(c, host, user, password, port, sslMode)
 	}
 }
 
-func PostgresRenameDatabaseHandler(host, user, password, port,sslMode string) gin.HandlerFunc {
+func PostgresRenameDatabaseHandler(host, user, password, port, sslMode string) gin.HandlerFunc {
 	return func(c *gin.Context) {
-		database.PostgresRenameDatabase(c, host, user, password, port,sslMode)
+		database.PostgresRenameDatabase(c, host, user, password, port, sslMode)
 	}
 }
 
-func PostgresDeleteDatabaseHandler(host, user, password, port,sslMode string) gin.HandlerFunc {
+func PostgresDeleteDatabaseHandler(host, user, password, port, sslMode string) gin.HandlerFunc {
 	return func(c *gin.Context) {
-		database.PostgresDeleteDatabase(c, host, user, password, port,sslMode)
+		database.PostgresDeleteDatabase(c, host, user, password, port, sslMode)
 	}
 }
 
-func PostgresViewDatabaseStatsHandler(host, user, password, port,sslMode string) gin.HandlerFunc {
+func PostgresViewDatabaseStatsHandler(host, user, password, port, sslMode string) gin.HandlerFunc {
 	return func(c *gin.Context) {
-		database.PostgresViewDatabaseStats(c, host, user, password, port,sslMode)
+		database.PostgresViewDatabaseStats(c, host, user, password, port, sslMode)
 	}
 }
 
-func PostgresGetTotalQueriesHandler(host, user, password, port,sslMode string) gin.HandlerFunc {
+func PostgresGetTotalQueriesHandler(host, user, password, port, sslMode string) gin.HandlerFunc {
 	return func(c *gin.Context) {
-		database.PostgresGetTotalQueries(c, host, user, password, port,sslMode)
+		database.PostgresGetTotalQueries(c, host, user, password, port, sslMode)
 	}
 }

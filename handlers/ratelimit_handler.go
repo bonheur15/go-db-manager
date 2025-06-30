@@ -8,16 +8,12 @@ import (
 	"golang.org/x/time/rate"
 )
 
-
-
 type IPRateLimiter struct {
 	visitors map[string]*rate.Limiter
 	mu       sync.Mutex
 	rate     rate.Limit
 	burst    int
 }
-
-
 
 func NewIPRateLimiter(r rate.Limit, b int) *IPRateLimiter {
 	return &IPRateLimiter{
@@ -26,8 +22,6 @@ func NewIPRateLimiter(r rate.Limit, b int) *IPRateLimiter {
 		burst:    b,
 	}
 }
-
-
 
 func (i *IPRateLimiter) getVisitor(ip string) *rate.Limiter {
 	i.mu.Lock()
@@ -41,8 +35,6 @@ func (i *IPRateLimiter) getVisitor(ip string) *rate.Limiter {
 
 	return limiter
 }
-
-
 
 func (i *IPRateLimiter) RateLimit() gin.HandlerFunc {
 	return func(c *gin.Context) {

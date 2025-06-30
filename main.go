@@ -17,23 +17,19 @@ import (
 	"golang.org/x/time/rate"
 )
 
-
-
 type Config struct {
-	MongoURI         string
-	MySQLDbHost      string
-	MySQLDbUser      string
-	MySQLDbPassword  string
-	MySQLDbPort      string
-	PostgresDbHost   string
-	PostgresDbUser   string
+	MongoURI           string
+	MySQLDbHost        string
+	MySQLDbUser        string
+	MySQLDbPassword    string
+	MySQLDbPort        string
+	PostgresDbHost     string
+	PostgresDbUser     string
 	PostgresDbPassword string
-	PostgresDbPort   string
-	APIKey           string
-	Sslmode          string
+	PostgresDbPort     string
+	APIKey             string
+	Sslmode            string
 }
-
-
 
 func LoadConfig() (*Config, error) {
 	if err := env.Load(".env"); err != nil {
@@ -41,17 +37,17 @@ func LoadConfig() (*Config, error) {
 	}
 
 	config := &Config{
-		MongoURI:         os.Getenv("MONGO_URI"),
-		MySQLDbHost:      os.Getenv("MYSQL_DB_HOST"),
-		MySQLDbUser:      os.Getenv("MYSQL_DB_USER"),
-		MySQLDbPassword:  os.Getenv("MYSQL_DB_PASSWORD"),
-		MySQLDbPort:      os.Getenv("MYSQL_DB_PORT"),
-		PostgresDbHost:   os.Getenv("POSTGRES_DB_HOST"),
-		PostgresDbUser:   os.Getenv("POSTGRES_DB_USER"),
+		MongoURI:           os.Getenv("MONGO_URI"),
+		MySQLDbHost:        os.Getenv("MYSQL_DB_HOST"),
+		MySQLDbUser:        os.Getenv("MYSQL_DB_USER"),
+		MySQLDbPassword:    os.Getenv("MYSQL_DB_PASSWORD"),
+		MySQLDbPort:        os.Getenv("MYSQL_DB_PORT"),
+		PostgresDbHost:     os.Getenv("POSTGRES_DB_HOST"),
+		PostgresDbUser:     os.Getenv("POSTGRES_DB_USER"),
 		PostgresDbPassword: os.Getenv("POSTGRES_DB_PASSWORD"),
-		PostgresDbPort:   os.Getenv("POSTGRES_DB_PORT"),
-		APIKey:           os.Getenv("API_KEY"),
-		Sslmode:          os.Getenv("SSL_MODE"),
+		PostgresDbPort:     os.Getenv("POSTGRES_DB_PORT"),
+		APIKey:             os.Getenv("API_KEY"),
+		Sslmode:            os.Getenv("SSL_MODE"),
 	}
 
 	if config.APIKey == "" {
@@ -60,8 +56,6 @@ func LoadConfig() (*Config, error) {
 
 	return config, nil
 }
-
-
 
 func AuthMiddleware(apiKey string) gin.HandlerFunc {
 	return func(c *gin.Context) {
@@ -90,7 +84,6 @@ func main() {
 
 	routes.GET("/server-info", handlers.GetServerInfoHandler)
 
-	
 	mysqlRoutes := routes.Group("/mysql")
 	{
 		mysqlRoutes.POST("/databases", handlers.CreateMySQLHandler(config.MySQLDbHost, config.MySQLDbUser, config.MySQLDbPassword, config.MySQLDbPort))
@@ -100,7 +93,6 @@ func main() {
 		mysqlRoutes.GET("/databases/:dbName/stats", handlers.MySQLViewDatabaseStatsHandler(config.MySQLDbHost, config.MySQLDbUser, config.MySQLDbPassword, config.MySQLDbPort))
 	}
 
-	
 	mongoRoutes := routes.Group("/mongo")
 	{
 		mongoRoutes.POST("/databases", handlers.CreateMongoHandler(config.MongoURI))
@@ -110,14 +102,13 @@ func main() {
 		mongoRoutes.GET("/databases/:dbName/stats", handlers.MongoViewDatabaseStatsHandler(config.MongoURI))
 	}
 
-	
 	postgresRoutes := routes.Group("/postgres")
 	{
-		postgresRoutes.POST("/databases", handlers.CreatePostgresHandler(config.PostgresDbHost, config.PostgresDbUser, config.PostgresDbPassword, config.PostgresDbPort,config.Sslmode))
-		postgresRoutes.PATCH("/databases/:dbName/credentials", handlers.PostgresResetCredentialsHandler(config.PostgresDbHost, config.PostgresDbUser, config.PostgresDbPassword, config.PostgresDbPort,config.Sslmode))
-		postgresRoutes.PATCH("/databases/:dbName", handlers.PostgresRenameDatabaseHandler(config.PostgresDbHost, config.PostgresDbUser, config.PostgresDbPassword, config.PostgresDbPort,config.Sslmode))
-		postgresRoutes.DELETE("/databases/:dbName", handlers.PostgresDeleteDatabaseHandler(config.PostgresDbHost, config.PostgresDbUser, config.PostgresDbPassword, config.PostgresDbPort,config.Sslmode))
-		postgresRoutes.GET("/databases/:dbName/stats", handlers.PostgresViewDatabaseStatsHandler(config.PostgresDbHost, config.PostgresDbUser, config.PostgresDbPassword, config.PostgresDbPort,config.Sslmode))
+		postgresRoutes.POST("/databases", handlers.CreatePostgresHandler(config.PostgresDbHost, config.PostgresDbUser, config.PostgresDbPassword, config.PostgresDbPort, config.Sslmode))
+		postgresRoutes.PATCH("/databases/:dbName/credentials", handlers.PostgresResetCredentialsHandler(config.PostgresDbHost, config.PostgresDbUser, config.PostgresDbPassword, config.PostgresDbPort, config.Sslmode))
+		postgresRoutes.PATCH("/databases/:dbName", handlers.PostgresRenameDatabaseHandler(config.PostgresDbHost, config.PostgresDbUser, config.PostgresDbPassword, config.PostgresDbPort, config.Sslmode))
+		postgresRoutes.DELETE("/databases/:dbName", handlers.PostgresDeleteDatabaseHandler(config.PostgresDbHost, config.PostgresDbUser, config.PostgresDbPassword, config.PostgresDbPort, config.Sslmode))
+		postgresRoutes.GET("/databases/:dbName/stats", handlers.PostgresViewDatabaseStatsHandler(config.PostgresDbHost, config.PostgresDbUser, config.PostgresDbPassword, config.PostgresDbPort, config.Sslmode))
 		postgresRoutes.GET("/databases/queries", handlers.PostgresGetTotalQueriesHandler(config.PostgresDbHost, config.PostgresDbUser, config.PostgresDbPassword, config.PostgresDbPort, config.Sslmode))
 	}
 
@@ -127,15 +118,14 @@ func main() {
 	}
 
 	go func() {
-		
+
 		if err := srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
 			log.Fatal().Err(err).Msg("listen: %s\n")
 		}
 	}()
 
-	
 	quit := make(chan os.Signal, 1)
-	
+
 	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
 	<-quit
 	log.Info().Msg("Shutting down server...")
@@ -148,5 +138,3 @@ func main() {
 
 	log.Info().Msg("Server exiting")
 }
-
-

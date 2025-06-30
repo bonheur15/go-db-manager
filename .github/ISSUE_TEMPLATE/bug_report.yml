@@ -1,0 +1,53 @@
+name: Bug Report
+description: Report a reproducible issue or unexpected behavior
+title: "[Bug]: "
+labels: ["bug"]
+
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for reporting a bug! Please provide as much detail as possible so we can reproduce and fix it.
+
+  - type: input
+    id: environment
+    attributes:
+      label: Environment
+      description: OS, Go version, tool version, etc.
+      placeholder: "e.g. Windows 10, Go 1.22, latest main branch"
+    validations:
+      required: true
+
+  - type: textarea
+    id: description
+    attributes:
+      label: Bug Description
+      description: What happened? What did you expect to happen?
+      placeholder: A clear and concise description of the problem.
+    validations:
+      required: true
+
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to Reproduce
+      description: Provide steps so we can reproduce the issue.
+      placeholder: |
+        1. Go to '...'
+        2. Run command '...'
+        3. See error '...'
+    validations:
+      required: true
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: Logs, Error Output or Screenshots
+      description: Paste relevant logs, errors, or screenshots.
+      render: shell
+
+  - type: input
+    id: related
+    attributes:
+      label: Related Issues or PRs
+      description: Link any related issues or pull requests.

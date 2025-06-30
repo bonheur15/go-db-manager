@@ -45,7 +45,6 @@ func MongoCreateDatabase(c *gin.Context, mongoURI string) {
 	}
 	defer client.Disconnect(ctx)
 
-	
 	existingDatabases, err := client.ListDatabaseNames(ctx, bson.M{})
 	if err != nil {
 		utils.ErrorResponse(c, err, startTime, "mongo-list-databases")
@@ -59,7 +58,6 @@ func MongoCreateDatabase(c *gin.Context, mongoURI string) {
 		}
 	}
 
-	
 	collection := client.Database(requestBody.DatabaseName).Collection("test")
 	if _, err := collection.InsertOne(ctx, bson.M{"test": "data"}); err != nil {
 		utils.ErrorResponse(c, err, startTime, "mongo-create-database")
@@ -305,14 +303,12 @@ func MongoResetCredentials(c *gin.Context, mongoURI string) {
 
 	db := client.Database(requestBody.DatabaseName)
 
-	
 	newPassword, err := utils.RandomString(16)
 	if err != nil {
 		utils.ErrorResponse(c, err, startTime, "mongo-create-user-random-string")
 		return
 	}
 
-	
 	updateCmd := bson.D{
 		{"updateUser", requestBody.Username},
 		{"pwd", newPassword},
