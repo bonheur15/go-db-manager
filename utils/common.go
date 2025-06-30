@@ -1,4 +1,4 @@
-package main
+package utils
 
 import (
 	"crypto/rand"
@@ -7,9 +7,11 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
+	"github.com/rs/zerolog/log"
 )
 
 func SuccessResponse(c *gin.Context, data map[string]interface{}, startTime int64, action, message string) {
+	log.Info().Str("action", action).Msg(message)
 	c.JSON(200, gin.H{
 		"data":            data,
 		"error":           false,
@@ -21,6 +23,7 @@ func SuccessResponse(c *gin.Context, data map[string]interface{}, startTime int6
 }
 
 func ErrorResponse(c *gin.Context, err error, startTime int64, action string) {
+	log.Error().Err(err).Str("action", action).Msg(err.Error())
 	c.JSON(400, gin.H{
 		"error":           true,
 		"message":         err.Error(),
@@ -36,7 +39,7 @@ const (
 	mixedCharset = "abcdefghijklmnopqrstuvwxyz0123456789"
 )
 
-func randomString(length int) (string, error) {
+func RandomString(length int) (string, error) {
 	if length <= 0 {
 		return "", fmt.Errorf("length must be greater than 0")
 	}
