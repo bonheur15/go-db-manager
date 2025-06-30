@@ -1,10 +1,8 @@
-package main
+package utils
 
 import (
 	"runtime"
-	"time"
 
-	"github.com/gin-gonic/gin"
 	"github.com/shirou/gopsutil/cpu"
 	"github.com/shirou/gopsutil/host"
 	"github.com/shirou/gopsutil/load"
@@ -23,7 +21,7 @@ type ServerInfo struct {
 	Arch         string                 `json:"arch"`
 }
 
-func getServerInfo() (*ServerInfo, error) {
+func GetServerInfo() (*ServerInfo, error) {
 	cpuInfo, err := cpu.Info()
 	if err != nil {
 		return nil, err
@@ -57,28 +55,4 @@ func getServerInfo() (*ServerInfo, error) {
 	}
 
 	return serverInfo, nil
-}
-func getServerInfoHandler(c *gin.Context) {
-	startTime := time.Now().UnixMilli()
-	serverInfo, err := getServerInfo()
-	if err != nil {
-		c.JSON(500, gin.H{
-			"error":           true,
-			"message":         err.Error(),
-			"action":          "server-info",
-			"timestamp":       time.Now(),
-			"action_duration": time.Now().UnixMilli() - startTime,
-			"data":            nil,
-		})
-		return
-	}
-
-	c.JSON(200, gin.H{
-		"data":            serverInfo,
-		"error":           false,
-		"action":          "server-info",
-		"message":         "Server Info",
-		"timestamp":       time.Now(),
-		"action_duration": time.Now().UnixMilli() - startTime,
-	})
 }

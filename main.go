@@ -1,96 +1,152 @@
 package main
 
 import (
+	"context"
 	"fmt"
+	"net/http"
 	"os"
+	"os/signal"
+	"syscall"
+	"time"
 
+	"github.com/bonheur15/go-db-manager/handlers"
+	"github.com/bonheur15/go-db-manager/utils"
 	"github.com/gin-gonic/gin"
 	"github.com/gofor-little/env"
+	"github.com/rs/zerolog/log"
+	"golang.org/x/time/rate"
 )
 
-func loadEnv() {
-	if err := env.Load(".env"); err != nil {
-		panic(err)
-	}
+
+
+type Config struct {
+	MongoURI         string
+	MySQLDbHost      string
+	MySQLDbUser      string
+	MySQLDbPassword  string
+	MySQLDbPort      string
+	PostgresDbHost   string
+	PostgresDbUser   string
+	PostgresDbPassword string
+	PostgresDbPort   string
+	APIKey           string
+	Sslmode          string
 }
 
-func getEnv(key, defaultValue string) string {
-	value, exists := os.LookupEnv(key)
-	if !exists {
-		return defaultValue
+
+
+func LoadConfig() (*Config, error) {
+	if err := env.Load(".env"); err != nil {
+		return nil, fmt.Errorf("error loading .env file: %w", err)
 	}
-	return value
+
+	config := &Config{
+		MongoURI:         os.Getenv("MONGO_URI"),
+		MySQLDbHost:      os.Getenv("MYSQL_DB_HOST"),
+		MySQLDbUser:      os.Getenv("MYSQL_DB_USER"),
+		MySQLDbPassword:  os.Getenv("MYSQL_DB_PASSWORD"),
+		MySQLDbPort:      os.Getenv("MYSQL_DB_PORT"),
+		PostgresDbHost:   os.Getenv("POSTGRES_DB_HOST"),
+		PostgresDbUser:   os.Getenv("POSTGRES_DB_USER"),
+		PostgresDbPassword: os.Getenv("POSTGRES_DB_PASSWORD"),
+		PostgresDbPort:   os.Getenv("POSTGRES_DB_PORT"),
+		APIKey:           os.Getenv("API_KEY"),
+		Sslmode:          os.Getenv("SSL_MODE"),
+	}
+
+	if config.APIKey == "" {
+		return nil, fmt.Errorf("API_KEY environment variable not set")
+	}
+
+	return config, nil
+}
+
+
+
+func AuthMiddleware(apiKey string) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		if c.GetHeader("X-API-KEY") != apiKey {
+			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized"})
+			return
+		}
+		c.Next()
+	}
 }
 
 func main() {
-	fmt.Println("Started Program")
-	loadEnv()
+	utils.InitLogger()
+	log.Info().Msg("Started Program")
 
-	// MySQL Configuration
-	mysqlHost := getEnv("mysql_host", "localhost")
-	mysqlUser := getEnv("mysql_user", "root")
-	mysqlPassword := getEnv("mysql_password", "")
-	mysqlPort := getEnv("mysql_port", "3306")
-	fmt.Printf("MySQL Host: %s\n", mysqlHost)
+	config, err := LoadConfig()
+	if err != nil {
+		log.Fatal().Err(err).Msg("Failed to load config")
+	}
 
-	// MongoDB Configuration
-	mongoURI := getEnv("mongo_uri", "mongodb://admin:password@localhost:27017")
-	fmt.Printf("MongoDB URI: %s\n", mongoURI)
-
-	// PostgreSQL Configuration
-	postgresHost := getEnv("postgres_host", "localhost")
-	postgresUser := getEnv("postgres_user", "postgres")
-	postgresPassword := getEnv("postgres_password", "password")
-	postgresPort := getEnv("postgres_port", "5432")
-	fmt.Printf("PostgreSQL Host: %s\n", postgresHost)
-
-	// go startQueryLimiterTicker(postgresHost, postgresUser, postgresPassword, postgresPort)
+	rateLimiter := handlers.NewIPRateLimiter(rate.Limit(10), 20)
 
 	routes := gin.Default()
-	routes.GET("/server-info", getServerInfoHandler)
+	routes.Use(rateLimiter.RateLimit())
+	routes.Use(AuthMiddleware(config.APIKey))
 
-	// MySQL Endpoints
-	routes.POST("/mysql/create-database", createMySQLHandler(mysqlCreateDatabase, mysqlHost, mysqlUser, mysqlPassword, mysqlPort))
-	routes.POST("/mysql/reset-credentials", createMySQLHandler(mysqlResetCredentials, mysqlHost, mysqlUser, mysqlPassword, mysqlPort))
-	routes.POST("/mysql/rename-database", createMySQLHandler(mysqlRenameDatabase, mysqlHost, mysqlUser, mysqlPassword, mysqlPort))
-	routes.POST("/mysql/delete-database", createMySQLHandler(mysqlDeleteDatabase, mysqlHost, mysqlUser, mysqlPassword, mysqlPort))
-	routes.POST("/mysql/view-database-stats", createMySQLHandler(mysqlViewDatabaseStats, mysqlHost, mysqlUser, mysqlPassword, mysqlPort))
+	routes.GET("/server-info", handlers.GetServerInfoHandler)
 
-	// MongoDB Endpoints
-	routes.POST("/mongo/create-database", createMongoHandler(mongoCreateDatabase, mongoURI))
-	routes.POST("/mongo/reset-credentials", createMongoHandler(mongoResetCredentials, mongoURI))
-	routes.POST("/mongo/rename-database", createMongoHandler(mongoRenameDatabase, mongoURI))
-	routes.POST("/mongo/delete-database", createMongoHandler(mongoDeleteDatabase, mongoURI))
-	routes.POST("/mongo/view-database-stats", createMongoHandler(mongoViewDatabaseStats, mongoURI))
-
-	// PostgreSQL Endpoints
-	routes.POST("/postgres/create-database", createPostgresHandler(postgresCreateDatabase, postgresHost, postgresUser, postgresPassword, postgresPort))
-	routes.POST("/postgres/reset-credentials", createPostgresHandler(postgresResetCredentials, postgresHost, postgresUser, postgresPassword, postgresPort))
-	routes.POST("/postgres/rename-database", createPostgresHandler(postgresRenameDatabase, postgresHost, postgresUser, postgresPassword, postgresPort))
-	routes.POST("/postgres/delete-database", createPostgresHandler(postgresDeleteDatabase, postgresHost, postgresUser, postgresPassword, postgresPort))
-	routes.POST("/postgres/view-database-stats", createPostgresHandler(postgresViewDatabaseStats, postgresHost, postgresUser, postgresPassword, postgresPort))
-	routes.POST("/postgres/get-total-queries", createPostgresHandler(postgresGetTotalQueries, postgresHost, postgresUser, postgresPassword, postgresPort))
-
-	// testing endpoints
-	// routes.POST("/test", createPostgresHandler(postgresGetUserQueryStats, postgresHost, postgresUser, postgresPassword, postgresPort))
-
-	routes.Run(":8080")
-}
-
-func createMySQLHandler(handlerFunc func(*gin.Context, string, string, string, string), host, user, password, port string) gin.HandlerFunc {
-	return func(ctx *gin.Context) {
-		handlerFunc(ctx, host, user, password, port)
+	
+	mysqlRoutes := routes.Group("/mysql")
+	{
+		mysqlRoutes.POST("/databases", handlers.CreateMySQLHandler(config.MySQLDbHost, config.MySQLDbUser, config.MySQLDbPassword, config.MySQLDbPort))
+		mysqlRoutes.PATCH("/databases/:dbName/credentials", handlers.MySQLResetCredentialsHandler(config.MySQLDbHost, config.MySQLDbUser, config.MySQLDbPassword, config.MySQLDbPort))
+		mysqlRoutes.PATCH("/databases/:dbName", handlers.MySQLRenameDatabaseHandler(config.MySQLDbHost, config.MySQLDbUser, config.MySQLDbPassword, config.MySQLDbPort))
+		mysqlRoutes.DELETE("/databases/:dbName", handlers.MySQLDeleteDatabaseHandler(config.MySQLDbHost, config.MySQLDbUser, config.MySQLDbPassword, config.MySQLDbPort))
+		mysqlRoutes.GET("/databases/:dbName/stats", handlers.MySQLViewDatabaseStatsHandler(config.MySQLDbHost, config.MySQLDbUser, config.MySQLDbPassword, config.MySQLDbPort))
 	}
+
+	
+	mongoRoutes := routes.Group("/mongo")
+	{
+		mongoRoutes.POST("/databases", handlers.CreateMongoHandler(config.MongoURI))
+		mongoRoutes.PATCH("/databases/:dbName/credentials", handlers.MongoResetCredentialsHandler(config.MongoURI))
+		mongoRoutes.PATCH("/databases/:dbName", handlers.MongoRenameDatabaseHandler(config.MongoURI))
+		mongoRoutes.DELETE("/databases/:dbName", handlers.MongoDeleteDatabaseHandler(config.MongoURI))
+		mongoRoutes.GET("/databases/:dbName/stats", handlers.MongoViewDatabaseStatsHandler(config.MongoURI))
+	}
+
+	
+	postgresRoutes := routes.Group("/postgres")
+	{
+		postgresRoutes.POST("/databases", handlers.CreatePostgresHandler(config.PostgresDbHost, config.PostgresDbUser, config.PostgresDbPassword, config.PostgresDbPort,config.Sslmode))
+		postgresRoutes.PATCH("/databases/:dbName/credentials", handlers.PostgresResetCredentialsHandler(config.PostgresDbHost, config.PostgresDbUser, config.PostgresDbPassword, config.PostgresDbPort,config.Sslmode))
+		postgresRoutes.PATCH("/databases/:dbName", handlers.PostgresRenameDatabaseHandler(config.PostgresDbHost, config.PostgresDbUser, config.PostgresDbPassword, config.PostgresDbPort,config.Sslmode))
+		postgresRoutes.DELETE("/databases/:dbName", handlers.PostgresDeleteDatabaseHandler(config.PostgresDbHost, config.PostgresDbUser, config.PostgresDbPassword, config.PostgresDbPort,config.Sslmode))
+		postgresRoutes.GET("/databases/:dbName/stats", handlers.PostgresViewDatabaseStatsHandler(config.PostgresDbHost, config.PostgresDbUser, config.PostgresDbPassword, config.PostgresDbPort,config.Sslmode))
+		postgresRoutes.GET("/databases/queries", handlers.PostgresGetTotalQueriesHandler(config.PostgresDbHost, config.PostgresDbUser, config.PostgresDbPassword, config.PostgresDbPort, config.Sslmode))
+	}
+
+	srv := &http.Server{
+		Addr:    ":8080",
+		Handler: routes,
+	}
+
+	go func() {
+		
+		if err := srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
+			log.Fatal().Err(err).Msg("listen: %s\n")
+		}
+	}()
+
+	
+	quit := make(chan os.Signal, 1)
+	
+	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
+	<-quit
+	log.Info().Msg("Shutting down server...")
+
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+	if err := srv.Shutdown(ctx); err != nil {
+		log.Fatal().Err(err).Msg("Server forced to shutdown:")
+	}
+
+	log.Info().Msg("Server exiting")
 }
 
-func createMongoHandler(handlerFunc func(*gin.Context, string), uri string) gin.HandlerFunc {
-	return func(ctx *gin.Context) {
-		handlerFunc(ctx, uri)
-	}
-}
 
-func createPostgresHandler(handlerFunc func(*gin.Context, string, string, string, string), host, user, password, port string) gin.HandlerFunc {
-	return func(ctx *gin.Context) {
-		handlerFunc(ctx, host, user, password, port)
-	}
-}
