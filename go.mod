@@ -1,6 +1,6 @@
 module github.com/bonheur15/go-db-manager
 
-go 1.23.0
+go 1.24.0
 
 toolchain go1.24.4
 
@@ -12,7 +12,7 @@ require (
 	github.com/rs/zerolog v1.34.0
 	github.com/shirou/gopsutil v3.21.11+incompatible
 	go.mongodb.org/mongo-driver v1.17.9
-	golang.org/x/time v0.12.0
+	golang.org/x/time v0.14.0
 )
 
 require (
